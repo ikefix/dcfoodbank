@@ -338,6 +338,16 @@ Route::prefix('cashier')->middleware(['auth', 'role:cashier'])->group(function()
     Route::post('invoices', [InvoiceController::class, 'store'])->name('cashier.invoices.store');
 });
 
+Route::get('/admin/invoices/{invoice}/preview', [InvoiceController::class, 'preview'])
+    ->name('admin.invoices.preview');
+
+Route::get('/admin/invoices/{invoice}/download', [InvoiceController::class, 'download'])
+    ->name('admin.invoices.download');
+
+    Route::get('/invoice/share/{invoice}', [InvoiceController::class, 'share'])
+    ->name('invoice.share')
+    ->middleware('signed');
+
 
 
 

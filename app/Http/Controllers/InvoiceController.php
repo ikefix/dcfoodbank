@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Shop;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\URL;
 
 class InvoiceController extends Controller
 {
@@ -80,6 +81,30 @@ class InvoiceController extends Controller
     ]);
 
     return redirect()->back()->with('success', 'Invoice created successfully! Stock updated.');
+}
+
+public function preview(Invoice $invoice)
+{
+    return view('admin.invoices.preview', compact('invoice'));
+}
+
+public function download(Invoice $invoice)
+{
+    $pdf = Pdf::loadView('admin.invoices.pdf', compact('invoice'));
+
+    return $pdf->download('Invoice-'.$invoice->invoice_number.'.pdf');
+}
+
+
+public function generateShareLink(Invoice $invoice)
+{
+    $link = URL::temporarySignedRoute(
+        'invoice.share',
+        now()->addDays(3),
+        ['invoice' => $invoice->id]
+    );
+
+    return $link;
 }
 
 

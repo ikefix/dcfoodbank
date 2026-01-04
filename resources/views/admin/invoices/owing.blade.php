@@ -82,6 +82,12 @@
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-success">Mark Paid</button>
                                         </form>
+
+                                        <a href="{{ route('admin.invoices.preview', $invoice->id) }}"
+                                            class="btn btn-sm btn-secondary">
+                                            Preview
+                                        </a>
+
                                     </td>
                                 </tr>
                                 @endforeach
