@@ -80,6 +80,8 @@
                 <th>Shop</th>
                 <th>Transaction ID</th>
                 <th>Discount Value</th>
+                <th>Customer Name</th>
+                <th>Customer Phone</th>
             </tr>
         </thead>
         <tbody>
@@ -89,24 +91,26 @@
                     <td>{{ $sale->product->category->name ?? 'Category Missing' }}</td>
                     <td>{{ $sale->quantity }}</td>
                     <td>
-                    @if(!empty($sale->discount_value) && $sale->discount_value > 0)
-                        <span style="text-decoration: line-through; color: red;">
-                            ₦{{ number_format($sale->total_price, 2) }}
-                        </span><br>
-                        <span style="color: #28a745; font-weight: bold;">
-                            ₦{{ number_format($sale->total_price - $sale->discount, 2) }}
-                        </span>
-                    @else
-                        <span style="color: #000;">
-                            ₦{{ number_format($sale->total_price, 2) }}
-                        </span>
-                    @endif
-                </td>
+                        @if(!empty($sale->discount_value) && $sale->discount_value > 0)
+                            <span style="text-decoration: line-through; color: red;">
+                                ₦{{ number_format($sale->total_price, 2) }}
+                            </span><br>
+                            <span style="color: #28a745; font-weight: bold;">
+                                ₦{{ number_format($sale->total_price - $sale->discount, 2) }}
+                            </span>
+                        @else
+                            <span style="color: #000;">
+                                ₦{{ number_format($sale->total_price, 2) }}
+                            </span>
+                        @endif
+                    </td>
                     <td>{{ ucfirst($sale->payment_method) }}</td>
                     <td>{{ $sale->created_at->format('Y-m-d H:i:s') }}</td>
                     <td>{{ $sale->shop->name ?? 'Unknown Shop' }}</td>
                     <td>{{ $sale->transaction_id ?? 'Unknown Transaction' }}</td>
                     <td>{{ $sale->discount_value ?? 'Unknown Transaction' }}</td>
+                    <td>{{ $sale->customer_name ?? 'Unknown Transaction' }}</td>
+                    <td>{{ $sale->customer_phone ?? 'Empty' }}</td>
                 </tr>
             @empty
                 <tr><td colspan="7" class="text-center">No sales found for today</td></tr>

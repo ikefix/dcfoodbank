@@ -39,7 +39,7 @@
                 <td>
                     <button class="btn btn-danger btn-sm delete-sale"
                         data-id="{{ $sale->id }}">
-                        Delete
+                        Restore
                     </button>
                 </td>
             </tr>

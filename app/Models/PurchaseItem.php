@@ -21,6 +21,9 @@ class PurchaseItem extends Model
         'discount_value',     // 🆕 Added
         'discount',           // 🆕 Added
         'cashier_id', // ← add this
+           // 🧍 Customer (optional)
+        'customer_name',
+        'customer_phone',
     ];
 
     /**
