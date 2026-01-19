@@ -21,6 +21,7 @@
             <th>Discount</th>
             <th>Date</th>
             <th>Action</th> {{-- NEW --}}
+            <th>Sales type</th> {{-- NEW --}}
         </tr>
     </thead>
     <tbody>
@@ -42,6 +43,7 @@
                         Restore
                     </button>
                 </td>
+                <td>{{ $sale->sale_type }}</td>
             </tr>
         @empty
             <tr>

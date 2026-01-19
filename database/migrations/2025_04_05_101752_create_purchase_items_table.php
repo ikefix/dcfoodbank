@@ -44,6 +44,9 @@ return new class extends Migration
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
             $table->foreign('shop_id')->references('id')->on('shops')->onDelete('set null');
+
+             // 🆕 SALE TYPE (THIS IS THE STAR ⭐)
+            $table->enum('sale_type', ['invoice', 'cashier'])->default('cashier');
         });
 
     }

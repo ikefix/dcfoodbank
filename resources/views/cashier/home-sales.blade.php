@@ -82,6 +82,7 @@
                 <th>Discount Value</th>
                 <th>Customer Name</th>
                 <th>Customer Phone</th>
+                <th>Sales type</th> {{-- NEW --}}
             </tr>
         </thead>
         <tbody>
@@ -110,7 +111,8 @@
                     <td>{{ $sale->transaction_id ?? 'Unknown Transaction' }}</td>
                     <td>{{ $sale->discount_value ?? 'Unknown Transaction' }}</td>
                     <td>{{ $sale->customer_name ?? 'Unknown Transaction' }}</td>
-                    <td>{{ $sale->customer_phone ?? 'Empty' }}</td>
+                    <td>{{ $sale->customer_phone ?? 'Empty' }}</td>       
+                    <td>{{ $sale->sale_type }}</td>
                 </tr>
             @empty
                 <tr><td colspan="7" class="text-center">No sales found for today</td></tr>

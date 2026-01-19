@@ -24,6 +24,9 @@ class PurchaseItem extends Model
            // 🧍 Customer (optional)
         'customer_name',
         'customer_phone',
+        
+        // 🔥 THIS IS THE MISSING PIECE
+        'sale_type',
     ];
 
     /**
