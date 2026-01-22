@@ -25,7 +25,7 @@
 
                 @csrf
 
-                <h5 class="mb-3">📥 Import Products (Excel)</h5>
+                <h5 class="mb-3">Import Products (Excel)</h5>
 
                 <div class="input-group">
                     <input 
@@ -45,7 +45,7 @@
                 </small>
             </form>
             <div class="mt-4">
-                <h6>📌 Excel Column Guide</h6>
+                <h6>``Excel Column Guide</h6>
 
                 <ul class="text-muted">
                     <li>

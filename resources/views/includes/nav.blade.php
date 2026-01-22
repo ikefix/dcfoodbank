@@ -34,7 +34,8 @@
                         <a href="{{ url("/cashiersales") }}" class="nav-link">Sales</a>
                         <a href="{{ route('cashierexpense.index') }}" class="nav-link">View Expenses</a>
                         <a href="{{ route('cashierexpense.create') }}" class="nav-link">Create Expense</a>
-                        {{-- <a href="{{ route('cashierexpense.create') }}" class="nav-link">Create Invoice</a> --}}
+                        <a href="{{ route('cashier.invoices.create') }}" class="nav-link">Create Invoice</a>
+                        <a href="{{ route('cashier.invoices.owing') }}" class="nav-link">Credit Supply</a>
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                             {{ Auth::user()->name }}
                         </a>

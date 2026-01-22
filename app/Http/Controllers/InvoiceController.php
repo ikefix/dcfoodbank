@@ -192,7 +192,7 @@ public function generateShareLink(Invoice $invoice)
 
 public function owing()
 {
-    if (!in_array(Auth::user()->role, ['admin', 'manager'])) {
+    if (!in_array(Auth::user()->role, ['admin', 'manager', 'cashier'])) {
         abort(403);
     }
 
@@ -212,9 +212,12 @@ public function owing()
 
     if (Auth::user()->role === 'admin') {
         return view('admin.invoices.owing', compact('owingInvoices', 'invoices', 'totalInvoices'));
-    } else {
+    } elseif (Auth::user()->role === 'manager') {
         return view('manager.invoices.owing', compact('owingInvoices', 'invoices', 'totalInvoices'));
+    } else {
+        return view('cashier.invoices.owing', compact('owingInvoices', 'invoices', 'totalInvoices'));
     }
+
 }
 
 
@@ -237,6 +240,43 @@ public function editPayment(Invoice $invoice)
 
 // Update payment
 public function updatePayment(Request $request, Invoice $invoice)
+{
+    $request->validate([
+        'payment_type' => 'required|in:full,part',
+        'amount_paid' => 'required|numeric|min:0',
+    ]);
+
+    $totalAmount = $invoice->total;
+    $newAmountPaid = $invoice->amount_paid + $request->amount_paid;
+
+    // Calculate new balance
+    $balance = $totalAmount - $newAmountPaid;
+
+    $invoice->amount_paid = $newAmountPaid;
+    $invoice->balance = $balance;
+
+    // Update payment type and status
+    $invoice->payment_type = $request->payment_type;
+    $invoice->payment_status = $balance <= 0 ? 'paid' : 'owing';
+
+    $invoice->save();
+
+    return redirect()->route(Auth::user()->role . '.invoices.owing')
+                     ->with('success', 'Payment updated successfully!');
+}
+
+public function editPaymentcash(Invoice $invoice)
+{
+    if (Auth::user()->role !== 'cashier') {
+        abort(403);
+    }
+
+    return view('cashier.invoices.edit-payment', compact('invoice'));
+}
+
+
+// Update payment
+public function updatePaymentcash(Request $request, Invoice $invoice)
 {
     $request->validate([
         'payment_type' => 'required|in:full,part',

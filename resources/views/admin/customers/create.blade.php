@@ -13,12 +13,31 @@
         {{-- Left Column: Form --}}
         <div class="form-fess">
             <div class="card p-3 mb-3">
+
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+
                 <h4>Create Customer</h4>
                 <form action="{{ auth()->user()->role === 'admin' ? route('admin.customers.store') : route('manager.customers.store') }}" method="POST">
                     @csrf
                     <div class="mb-2">
                         <label>Name</label>
-                        <input type="text" name="name" class="form-control form-control-sm" required>
+                        <input
+                            type="text"
+                            name="name"
+                            class="form-control form-control-sm"
+                            required
+                            oninvalid="this.setCustomValidity('Please enter customer name')"
+                            oninput="this.setCustomValidity('')"
+                        >
                     </div>
                     <div class="mb-2">
                         <label>Email</label>
@@ -26,7 +45,14 @@
                     </div>
                     <div class="mb-2">
                         <label>Phone</label>
-                        <input type="text" name="phone" class="form-control form-control-sm" required>
+                        <input
+                            type="text"
+                            name="phone"
+                            class="form-control form-control-sm"
+                            required
+                            oninvalid="this.setCustomValidity('Please enter phone number')"
+                            oninput="this.setCustomValidity('')"
+                        >
                     </div>
                     <div class="mb-2">
                         <label>Address</label>
