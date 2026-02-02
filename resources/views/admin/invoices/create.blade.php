@@ -104,6 +104,7 @@
                         <div class="mb-3">
                             <label class="form-label">Payment Type</label>
                             <select name="payment_type" id="payment_type" class="form-select" required>
+                                <option value="full">Select Plan</option>
                                 <option value="full">Full Payment</option>
                                 <option value="part">Part Payment</option>
                             </select>
@@ -216,15 +217,21 @@
         calculateBalance();
     }
 
-    function toggleAmountPaid() {
-        if (paymentType.value === "part") {
-            amountPaidWrapper.classList.remove('d-none');
-        } else {
-            amountPaidWrapper.classList.add('d-none');
-            amountPaidInput.value = 0;
-        }
-        calculateBalance();
+function toggleAmountPaid() {
+    const finalTotal = Number(finalTotalInput.value) || 0;
+
+    if (paymentType.value === "part") {
+        amountPaidWrapper.classList.remove('d-none');
+        amountPaidInput.value = 0;
+    } else {
+        // FULL PAYMENT
+        amountPaidWrapper.classList.add('d-none');
+        amountPaidInput.value = finalTotal; // ✅ PAY EVERYTHING
     }
+
+    calculateBalance();
+}
+
 
     function calculateBalance() {
         const finalTotal = Number(finalTotalInput.value) || 0;

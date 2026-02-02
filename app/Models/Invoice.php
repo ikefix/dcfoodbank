@@ -43,5 +43,17 @@ class Invoice extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getGoodsArrayAttribute()
+    {
+        return json_decode($this->goods, true);
+    }
+
+    public function getQuantityAttribute()
+    {
+        $goods = $this->goods_array;
+        return $goods['quantity'] ?? 0;
+    }
+
 }
 

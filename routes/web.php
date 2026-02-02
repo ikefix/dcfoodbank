@@ -289,6 +289,12 @@ Route::prefix('manager')->middleware(['auth','role:manager'])->group(function(){
     Route::delete('/customers/{customer}', [CustomerController::class,'destroy'])->name('manager.customers.destroy');
 });
 
+// cashier
+
+
+    Route::get('/customers', [CustomerController::class,'index'])->name('cashier.customers.index');
+    Route::post('/customers', [CustomerController::class,'store'])->name('cashier.customers.store');
+
 
 
 
@@ -334,8 +340,12 @@ Route::prefix('manager')->middleware(['auth', 'role:manager'])->group(function()
 });
 
 Route::prefix('cashier')->middleware(['auth', 'role:cashier'])->group(function(){
+    
+    Route::get('/invoices/owing', [InvoiceController::class, 'owing'])->name('cashier.invoices.owing');
     Route::get('invoices/create', [InvoiceController::class, 'create'])->name('cashier.invoices.create');
     Route::post('invoices', [InvoiceController::class, 'store'])->name('cashier.invoices.store');
+    Route::get('/invoices/{invoice}/edit-payment', [InvoiceController::class, 'editPaymentcash'])->name('cashier.invoices.edit-payment');
+    Route::post('/invoices/{invoice}/update-payment', [InvoiceController::class, 'updatePaymentcash'])->name('cashier.invoices.update-payment');
 });
 
 Route::get('/admin/invoices/{invoice}/preview', [InvoiceController::class, 'preview'])

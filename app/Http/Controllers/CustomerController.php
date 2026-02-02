@@ -7,12 +7,21 @@ use App\Models\Customer;
 class CustomerController extends Controller
 {
     // Show form + table
-    public function index()
-    {
-        $customers = Customer::latest()->get(); // fetch all customers
-        $view = auth()->user()->role === 'admin' ? 'admin.customers.create' : 'manager.customers.create';
-        return view($view, compact('customers'));
+public function index()
+{
+    $customers = Customer::latest()->get(); // fetch all customers
+
+    if (auth()->user()->role === 'admin') {
+        $view = 'admin.customers.create';
+    } elseif (auth()->user()->role === 'manager') {
+        $view = 'manager.customers.create';
+    } else {
+        $view = 'cashier.customers.create';
     }
+
+    return view($view, compact('customers'));
+}
+
 
     // Store new customer
     // public function store(Request $request)

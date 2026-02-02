@@ -17,32 +17,121 @@
         @endif
 
         {{-- Excel Import --}}
-        <form action="{{ route('products.import') }}" 
-            method="POST" 
-            enctype="multipart/form-data"
-            class="mb-4 p-3 border rounded bg-light">
+        <div class="mb-4 p-3 border rounded bg-light">
+            <form action="{{ route('products.import') }}" 
+                method="POST" 
+                enctype="multipart/form-data"
+                class="mb-4 p-3 rounded bg-light">
 
-            @csrf
+                @csrf
 
-            <h5 class="mb-3">📥 Import Products (Excel)</h5>
+                <h5 class="mb-3">Import Products (Excel)</h5>
 
-            <div class="input-group">
-                <input 
-                    type="file" 
-                    name="excel_file" 
-                    class="form-control" 
-                    accept=".xlsx,.csv"
-                    required
-                >
-                <button class="btn btn-dark">
-                    Import Excel
-                </button>
+                <div class="input-group">
+                    <input 
+                        type="file" 
+                        name="excel_file" 
+                        class="form-control" 
+                        accept=".xlsx,.csv"
+                        required
+                    >
+                    <button class="btn btn-dark">
+                        Import Excel
+                    </button>
+                </div>
+
+                <small class="text-muted d-block mt-2">
+                    Excel headers must match DB columns (name, price, stock_quantity, etc.)
+                </small>
+            </form>
+            <div class="mt-4">
+                <h6>``Excel Column Guide</h6>
+
+                <ul class="text-muted">
+                    <li>
+                        <strong>name</strong> – The name of the product you want to upload  
+                        <em>(e.g. Coca-Cola 50cl)</em>
+                    </li>
+
+                    <li>
+                        <strong>barcode</strong> – Product barcode number.  
+                        If the product has no barcode, you can leave this empty.
+                    </li>
+
+                    <li>
+                        <strong>price</strong> – Selling price of the product  
+                        <em>(what customers will pay)</em>
+                    </li>
+
+                    <li>
+                        <strong>cost_price</strong> – Cost price of the product  
+                        <em>(how much you bought it)</em>
+                    </li>
+
+                    <li>
+                        <strong>stock_quantity</strong> – Quantity of the product currently in stock
+                    </li>
+
+                    <li>
+                        <strong>stock_limit</strong> – The quantity the product should reach before the <br> system notifies you that the product is almost finished
+                    </li>
+
+                   <li>
+                        <strong>category</strong> – Product category name  
+                        <em>(e.g. Drinks, Provisions, Electronics)</em>
+
+                        <div class="mt-1">
+                            <small class="text-danger">
+                                Note: The category must be created first in the software before uploading.
+                            </small>
+                        </div>
+
+                        <div class="mt-1">
+                            <a href="{{ route('categories.create') }}" class="text-primary">
+                                 Create Category
+                            </a>
+                        </div>
+                    </li>
+
+                    <li>
+                        <strong>shop</strong> – Shop name where the product belongs  
+                        <em>(must match an existing shop)</em>
+
+                        <div class="mt-1">
+                            <small class="text-danger">
+                                Note: The Shop must be created first in the software before uploading.
+                            </small>
+                        </div>
+
+                        <div class="mt-1">
+                            <a href="{{route('shops.create')}}" class="text-primary">
+                                 Create Shop
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="mt-3">
+                    <a href="{{ asset('sample/record.xlsx') }}"
+                        download
+                        class="btn btn-outline-primary btn-sm">
+                             Download Sample Excel File
+                    </a>
+
+                </div>
+
+                <small class="text-muted d-block mt-2">
+                    Download the sample Excel file, fill in your product details, then upload it using the form above.
+                </small><br>
+                <small class="text-danger">
+                    Note: Make sure the shop and category already exist in the software, And <br> the names must match exactly with what you enter in the Excel file. <br>
+                    They are case-sensitive. <br>
+                    Example: if your shop is named “Supermarket” (capital S), you must write “Supermarket” in the Excel file. <br>
+                    Writing “supermarket” will not work
+                </small>
             </div>
 
-            <small class="text-muted d-block mt-2">
-                Excel headers must match DB columns (name, price, stock_quantity, etc.)
-            </small>
-        </form>
+        </div>
 
 
         <form action="{{ route('products.store') }}" method="POST" id="product-form">

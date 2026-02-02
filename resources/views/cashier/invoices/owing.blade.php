@@ -1,6 +1,6 @@
-@extends('layouts.adminapp')
+@extends('layouts.app')
 
-@section('admincontent')
+@section('content')
 <div class="container-fluid py-4">
 
     {{-- Dashboard Cards --}}
@@ -48,7 +48,7 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Invoices</h4>
-                    <a href="{{ route('admin.invoices.create') }}" class="btn btn-sm btn-primary">New Invoice</a>
+                    <a href="{{ route('cashier.invoices.create') }}" class="btn btn-sm btn-primary">New Invoice</a>
                 </div>
                 <div class="card-body">
                     @if($invoices->count())
@@ -85,8 +85,8 @@
                                     <td>{{ $invoice->payment_type }}</td>
                                     <td>{{ $invoice->payment_status }}</td>
                                     <td>
-                                        <a href="{{ route('admin.invoices.edit-payment', $invoice->id) }}" class="btn btn-sm btn-info">Edit</a>
-                                        <form action="{{ route('admin.invoices.update-payment', $invoice->id) }}" method="POST" class="d-inline-block">
+                                        <a href="{{ route('cashier.invoices.edit-payment', $invoice->id) }}" class="btn btn-sm btn-info">Edit</a>
+                                        <form action="{{ route('cashier.invoices.update-payment', $invoice->id) }}" method="POST" class="d-inline-block">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-success">Mark Paid</button>
                                         </form>

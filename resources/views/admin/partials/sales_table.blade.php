@@ -22,6 +22,7 @@
             <th>Date</th>
             <th>Action</th> {{-- NEW --}}
             <th>Sales type</th> {{-- NEW --}}
+            <th>Cashier name</th> {{-- NEW --}}
         </tr>
     </thead>
     <tbody>
@@ -44,6 +45,7 @@
                     </button>
                 </td>
                 <td>{{ $sale->sale_type }}</td>
+                <td>{{ $sale->cashier->name ?? 'N/A' }}</td>
             </tr>
         @empty
             <tr>

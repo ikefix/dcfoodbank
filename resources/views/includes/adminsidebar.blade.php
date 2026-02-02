@@ -16,56 +16,83 @@
                 <span class="sidebar-icon"><i class='bx bxs-dashboard bx-tada' ></i></span>
                 <span class="sidebar-text">Dashboard</span>
             </a>
-            <a href="{{ route('products.create') }}" class="sidebar-link">
-                <span class="sidebar-icon"><i class='bx bx-package'></i></span>
-                <span class="sidebar-text">Products</span>
+            <a class="sidebar-link collapsible-btn" onclick="toggleSubmenu(this)">
+                <span class="sidebar-icon"><i class='bx bx-layer'></i></span>
+                <span class="sidebar-text">Inventory</span>
+                <span class="arrow">&#9662;</span> <!-- down arrow -->
             </a>
-            <a href="{{ route('categories.create') }}" class="sidebar-link">
-                <span class="sidebar-icon"><i class='bx bx-category'></i></span>
-                <span class="sidebar-text">Categories</span>
-            </a>
+            <div class="submenu"> 
+                 <a href="{{ route('products.create') }}" class="sidebar-link">
+                    <span class="sidebar-icon"><i class='bx bx-package'></i></span>
+                    <span class="sidebar-text">Products</span>
+                </a>
+                <a href="{{ route('categories.create') }}" class="sidebar-link">
+                    <span class="sidebar-icon"><i class='bx bx-category'></i></span>
+                    <span class="sidebar-text">Categories</span>
+                </a>
+            </div>
             <a href="{{route('admin.sales')}}" class="sidebar-link">
                 <span class="sidebar-icon"><i class='bx bx-receipt'></i></span>
                 <span class="sidebar-text">Sales</span>
             </a>
-            <a href="{{ route('expenses.create') }}" class="sidebar-link">
-                <span class="sidebar-icon"><i class='bx bx-purchase-tag'></i></span>
-                <span class="sidebar-text">Create Expense</span>
+
+            <a class="sidebar-link collapsible-btn" onclick="toggleSubmenu(this)">
+                <span class="sidebar-icon"><i class='bx bx-credit-card'></i></span>
+                <span class="sidebar-text">Expenses</span>
+                <span class="arrow">&#9662;</span> <!-- down arrow -->
             </a>
-            <a href="{{ route('expenses.index') }}" class="sidebar-link">
-                <span class="sidebar-icon"><i class='bx bxs-discount'></i></span>
-                <span class="sidebar-text">View Expenses</span>
-            </a>
+            <div class="submenu"> 
+                <a href="{{ route('expenses.create') }}" class="sidebar-link">
+                    <span class="sidebar-icon"><i class='bx bx-purchase-tag'></i></span>
+                    <span class="sidebar-text">Create Expense</span>
+                </a>
+                <a href="{{ route('expenses.index') }}" class="sidebar-link">
+                    <span class="sidebar-icon"><i class='bx bxs-discount'></i></span>
+                    <span class="sidebar-text">View Expenses</span>
+                </a>
+            </div>
             <a href="{{route('shops.create')}}" class="sidebar-link">
                 <span class="sidebar-icon"><i class='bx bxs-store' ></i></span>
                 <span class="sidebar-text">Shops</span>
-            </a>
-            <a href="{{ route('barcode.manager') }}" class="sidebar-link">
-                <span class="sidebar-icon"><i class='bx bx-barcode-reader'></i></span>
-                <span class="sidebar-text">Barcode Manager</span>
             </a>
             <a href="{{route('stock-transfers.create')}}" class="sidebar-link">
                 <span class="sidebar-icon"><i class='bx bx-transfer'></i></span>
                 <span class="sidebar-text">Stock Transfer</span>
             </a>   
 
-             <a class="sidebar-link collapsible-btn" onclick="toggleSubmenu(this)">
-                <span class="sidebar-icon"><i class='bx bx-user'></i></span>
-                <span class="sidebar-text">C M</span>
+            <a class="sidebar-link collapsible-btn" onclick="toggleSubmenu(this)">
+                <span class="sidebar-icon"><i class='bx bx-group'></i></span>
+                <span class="sidebar-text">Customers</span>
                 <span class="arrow">&#9662;</span> <!-- down arrow -->
             </a>
             <div class="submenu"> 
                 <a href="{{route('admin.invoices.owing')}}" class="sidebar-link">
-                    <span class="sidebar-icon"><i class='bx bx-shield-quarter'></i></span>
-                    <span class="sidebar-text">Owing Balances</span>
+                    <span class="sidebar-icon"><i class='bx bx-credit-card-front'></i></span>
+                    <span class="sidebar-text">Credit Supply</span>
                 </a>  
                 <a href="{{ route('admin.customers.index') }}" class="sidebar-link">
                     <span class="sidebar-icon"><i class='bx bxs-discount'></i></span>
                     <span class="sidebar-text">Create Customer</span>
                 </a>  
                 <a href="{{ route('admin.invoices.create') }}" class="sidebar-link">
-                    <span class="sidebar-icon"><i class='bx bx-transfer'></i></span>
+                    <span class="sidebar-icon"><i class='bx bx-file'></i></span>
                     <span class="sidebar-text">Create Invoice</span>
+                </a>  
+            </div>
+
+            <a class="sidebar-link collapsible-btn" onclick="toggleSubmenu(this)">
+                <span class="sidebar-icon"><i class='bx bx-cog'></i></span>
+                <span class="sidebar-text">Settings</span>
+                <span class="arrow">&#9662;</span> <!-- down arrow -->
+            </a>
+            <div class="submenu">
+                <a href="{{ route('barcode.manager') }}" class="sidebar-link">
+                    <span class="sidebar-icon"><i class='bx bx-barcode-reader'></i></span>
+                    <span class="sidebar-text">Barcode Manager</span>
+                </a> 
+                <a href="{{route('admin.manager-permissions')}}" class="sidebar-link">
+                    <span class="sidebar-icon"><i class='bx bx-shield-quarter'></i></span>
+                    <span class="sidebar-text">Permissions</span>
                 </a>  
             </div>
 
@@ -81,10 +108,6 @@
                         {{-- <span class="badge bg-danger">{{ $unreadNotificationCount }}</span> --}}
                     @endif
                 </span>
-            </a>   
-            <a href="{{route('admin.manager-permissions')}}" class="sidebar-link">
-                <span class="sidebar-icon"><i class='bx bx-shield-quarter'></i></span>
-                <span class="sidebar-text">Permissions</span>
             </a>         
             <a class="sidebar-link collapsible-btn" onclick="toggleSubmenu(this)">
                 <span class="sidebar-icon"><i class='bx bx-user'></i></span>

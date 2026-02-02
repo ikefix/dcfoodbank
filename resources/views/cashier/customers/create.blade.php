@@ -1,6 +1,6 @@
-@extends('layouts.adminapp')
+@extends('layouts.app')
 
-@section('admincontent')
+@section('content')
 
 <div class="container-fluid p-0">
     <h2 class="mb-4">Customer Maintenance</h2>
@@ -26,7 +26,13 @@
 
 
                 <h4>Create Customer</h4>
-                <form action="{{ auth()->user()->role === 'admin' ? route('admin.customers.store') : route('manager.customers.store') }}" method="POST">
+                <form action="{{ auth()->user()->role === 'admin' 
+                        ? route('admin.customers.store') 
+                        : (auth()->user()->role === 'manager' 
+                            ? route('manager.customers.store') 
+                            : route('cashier.customers.store')
+                        )
+                    }}" method="POST">
                     @csrf
                     <div class="mb-2">
                         <label>Name</label>
