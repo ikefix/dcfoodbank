@@ -7,83 +7,108 @@ use Illuminate\Http\Request;
 use App\Models\PurchaseItem;
 use App\Models\Expense;
 use App\Models\Shop;
+use App\Models\Category;
 
 class ProfitReportController extends Controller
 {
     public function profitLoss(Request $request)
     {
-        // 🔍 FILTER RANGE (for cards)
+        $shopId = $request->shop_id;
+
+        /* ---------------- FILTER DATES ---------------- */
         $startDate = $request->start_date
             ? Carbon::parse($request->start_date)->startOfDay()
-            : Carbon::now()->startOfMonth();
+            : now()->startOfDay();
 
         $endDate = $request->end_date
             ? Carbon::parse($request->end_date)->endOfDay()
-            : Carbon::now()->endOfDay();
+            : now()->endOfDay();
 
-        $shopId = $request->shop_id;
-
-        // 🔥 SALES (for cards)
+        /* ---------------- SALES ---------------- */
         $sales = PurchaseItem::whereBetween('created_at', [$startDate, $endDate])
-            ->when($shopId, fn ($q) => $q->where('shop_id', $shopId))
+            ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
             ->with('product')
             ->get();
 
-        // 💰 Revenue (after discount)
-        $totalRevenue = $sales->sum(fn ($i) =>
-            $i->total_price - ($i->discount_value ?? 0)
-        );
+        /* ---------------- TOTAL REVENUE ---------------- */
+        // If filter is applied, show revenue for the range; otherwise today
+        if ($request->start_date && $request->end_date) {
+            $totalRevenue = $sales->sum(fn($i) => $i->total_price - ($i->discount_value ?? 0));
+        } else {
+            $totalRevenue = PurchaseItem::whereBetween('created_at', [now()->startOfDay(), now()->endOfDay()])
+                ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+                ->get()
+                ->sum(fn($i) => $i->total_price - ($i->discount_value ?? 0));
+        }
 
-        // 📦 Cost of Goods
-        $totalCost = $sales->sum(fn ($i) =>
-            ($i->product->cost_price ?? 0) * $i->quantity
-        );
+        /* ---------------- TOTAL COST ---------------- */
+        $totalCost = $sales->sum(fn ($i) => ($i->product->cost_price ?? 0) * $i->quantity);
 
-        // 📈 Gross Profit
         $grossProfit = $totalRevenue - $totalCost;
 
-        // 🧾 Expenses
-        $totalExpenses = Expense::whereBetween('date', [$startDate, $endDate])
-            ->when($shopId, fn ($q) => $q->where('shop_id', $shopId))
-            ->sum('amount');
+        /* ---------------- EXPENSES ---------------- */
+        $expensesQuery = Expense::whereBetween('date', [$startDate, $endDate])
+            ->when($shopId, fn($q) => $q->where('shop_id', $shopId));
 
-        // 💵 Net Profit / Loss
+        $totalExpenses = $expensesQuery->sum('amount');
+
+        $expensesByCategory = $expensesQuery
+            ->selectRaw('title, SUM(amount) as total')
+            ->groupBy('title')
+            ->get();
+
+        /* ---------------- NET PROFIT ---------------- */
         $netProfit = $grossProfit - $totalExpenses;
-        $loss = $netProfit < 0 ? abs($netProfit) : 0;
+        $profitMargin = $totalRevenue > 0 ? ($netProfit / $totalRevenue) * 100 : 0;
 
-        /*
-        |--------------------------------------------------------------------------
-        | 📊 PROFIT TREND — ALWAYS LAST 10 DAYS (NO EXCUSES)
-        |--------------------------------------------------------------------------
-        */
-        $chartEnd = now()->endOfDay();
-        $chartStart = now()->subDays(9)->startOfDay(); // last 10 days
+        /* ---------------- CHART DATA ---------------- */
+        // ------------------- PERIOD FOR CHART -------------------
+if ($request->start_date && $request->end_date) {
+    $startDate = Carbon::parse($request->start_date)->startOfDay();
+    $endDate = Carbon::parse($request->end_date)->endOfDay();
+} else {
+    $startDate = now()->subDays(9)->startOfDay(); // last 10 days
+    $endDate = now()->endOfDay();
+}
 
-        $rawSales = PurchaseItem::whereBetween('created_at', [$chartStart, $chartEnd])
-            ->when($shopId, fn ($q) => $q->where('shop_id', $shopId))
-            ->with('product')
-            ->get()
-            ->groupBy(fn ($item) => $item->created_at->format('Y-m-d'));
+// Build period array
+$period = [];
+$current = $startDate->copy();
+while ($current <= $endDate) {
+    $period[] = $current->format('Y-m-d');
+    $current->addDay();
+}
 
-        $profitByDay = collect(range(0, 9))->map(function ($i) use ($rawSales) {
-            $date = now()->subDays(9 - $i)->format('Y-m-d');
-            $items = $rawSales->get($date, collect());
+// Group sales and expenses by date
+$rawSales = $sales->groupBy(fn($item) => $item->created_at->format('Y-m-d'));
+$rawExpenses = Expense::whereBetween('date', [$startDate, $endDate])
+    ->when($shopId, fn($q) => $q->where('shop_id', $shopId))
+    ->get()
+    ->groupBy(fn($item) => Carbon::parse($item->date)->format('Y-m-d'));
 
-            $revenue = $items->sum(fn ($i) =>
-                $i->total_price - ($i->discount_value ?? 0)
-            );
+// Map profit by day
+$profitByDay = collect($period)->map(function($date) use ($rawSales, $rawExpenses) {
+    $items = $rawSales->get($date, collect());
+    $expenses = $rawExpenses->get($date, collect());
 
-            $cost = $items->sum(fn ($i) =>
-                ($i->product->cost_price ?? 0) * $i->quantity
-            );
+    $revenue = $items->sum(fn($i) => $i->total_price - ($i->discount_value ?? 0));
+    $cost = $items->sum(fn($i) => ($i->product->cost_price ?? 0) * $i->quantity);
+    $expenseTotal = $expenses->sum('amount');
 
-            return [
-                'date' => $date,
-                'profit' => $revenue - $cost
-            ];
-        });
+    return [
+        'date' => $date,
+        'revenue' => $revenue,
+        'expenses' => $expenseTotal,
+        'profit' => $revenue - $cost - $expenseTotal
+    ];
+});
 
-        // 🏪 Shops
+
+        /* ---------------- BEST & WORST DAY ---------------- */
+        $bestDay = $profitByDay->sortByDesc('profit')->first();
+        $worstDay = $profitByDay->sortBy('profit')->first();
+
+        /* ---------------- SHOPS ---------------- */
         $shops = Shop::all();
 
         return view('admin.report.profit_loss', compact(
@@ -92,9 +117,13 @@ class ProfitReportController extends Controller
             'grossProfit',
             'totalExpenses',
             'netProfit',
-            'loss',
+            'profitMargin',
             'profitByDay',
-            'shops'
+            'expensesByCategory',
+            'bestDay',
+            'worstDay',
+            'shops',
+    'sales' // 👈 add this
         ));
     }
 }
