@@ -16,6 +16,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\StockReportController;
+use App\Http\Controllers\ProfitReportController;
 use Milon\Barcode\DNS1D;
 use App\Models\Product;
 
@@ -438,3 +439,5 @@ Route::get(
 )->name('admin.stock.report.pdf');
 
 
+Route::get('/admin/report/profit-loss', [ProfitReportController::class, 'profitLoss'])
+    ->name('admin.report.profit_loss');

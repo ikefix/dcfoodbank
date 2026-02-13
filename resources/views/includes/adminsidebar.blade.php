@@ -70,6 +70,10 @@
                     <span class="sidebar-icon"><i class='bx bx-category'></i></span>
                     <span class="sidebar-text">Stock Report</span>
                 </a>
+                <a href="{{route('admin.report.profit_loss')}}" class="sidebar-link">
+                    <span class="sidebar-icon"><i class='bx bx-category'></i></span>
+                    <span class="sidebar-text">P & L Report</span>
+                </a>
             </div>
             <a href="{{route('stock-transfers.create')}}" class="sidebar-link">
                 <span class="sidebar-icon"><i class='bx bx-transfer'></i></span>
