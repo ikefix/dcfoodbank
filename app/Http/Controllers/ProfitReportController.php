@@ -123,7 +123,7 @@ $profitByDay = collect($period)->map(function($date) use ($rawSales, $rawExpense
             'bestDay',
             'worstDay',
             'shops',
-    'sales' // 👈 add this
+            'sales' // 👈 add this
         ));
     }
 }

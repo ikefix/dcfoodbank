@@ -230,6 +230,12 @@
        value="{{ $search ?? '' }}">
 
             <div id="product-table">
+                <div class="mb-3">
+                    <a href="{{ route('products.export') }}" class="btn btn-success">
+                        Export All Products to Excel
+                    </a>
+                </div>
+
                 @include('products.partials.table')
             </div>
         

@@ -20,6 +20,9 @@ use App\Http\Controllers\ProfitReportController;
 use Milon\Barcode\DNS1D;
 use App\Models\Product;
 
+use App\Exports\ProductsExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\InvoiceController;
@@ -31,9 +34,13 @@ use App\Http\Controllers\InvoiceController;
 | Here is where you can register web routes for your application. These
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
-|
+
 */
 
+
+Route::get('/products/export', function () {
+    return Excel::download(new ProductsExport, 'products.xlsx');
+})->name('products.export');
 
 
 // Route::get('/barcode/{code}', function ($code) {
