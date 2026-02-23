@@ -3,7 +3,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">Create Invoice</h3>
@@ -54,33 +54,35 @@
                             </select>
                         </div>
 
-                        {{-- Product Selection --}}
+                        {{-- Product Rows --}}
                         <div class="mb-3">
-                            <label for="product_id" class="form-label">Select Product</label>
-                            <select name="goods[product_id]" id="product_id" class="form-select" required disabled>
-                                <option value="">-- Choose Product --</option>
-                            </select>
+                            <label class="form-label">Add Products</label>
+                            <div id="products_wrapper">
+                                <div class="row product_row mb-2">
+                                    <div class="col-md-4">
+                                        <select class="form-select product_select" required disabled>
+                                            <option value="">-- Choose Product --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="number" class="form-control product_quantity" min="1" value="1">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control product_price" readonly>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control product_total" readonly>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-danger btn-sm remove_product">X</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm mt-2" id="add_product_btn">+ Add Product</button>
                         </div>
 
-                        <div class="row">
-                            {{-- Price --}}
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Price</label>
-                                <input type="text" id="product_price" class="form-control" readonly>
-                            </div>
-
-                            {{-- Quantity --}}
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Quantity</label>
-                                <input type="number" name="goods[quantity]" id="product_quantity" class="form-control" min="1" value="1">
-                            </div>
-
-                            {{-- Total --}}
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Total</label>
-                                <input type="text" name="goods[total_price]" id="product_total" class="form-control" readonly>
-                            </div>
-                        </div>
+                        {{-- Hidden input to store JSON --}}
+                        <input type="hidden" name="goods" id="goods_json">
 
                         {{-- Discount + Tax --}}
                         <div class="row">
@@ -125,7 +127,6 @@
                         <div class="d-grid mt-4">
                             <button type="submit" class="btn btn-success btn-lg">Create Invoice</button>
                         </div>
-
                     </form>
                 </div>
             </div>
@@ -135,117 +136,131 @@
 
 {{-- JS --}}
 <script>
-    const customers = document.querySelector('#customer_id');
-    const emailSpan = document.querySelector('#customer_email');
-    const phoneSpan = document.querySelector('#customer_phone');
-    const companySpan = document.querySelector('#customer_company');
+let products = @json($products);
 
-    const shopSelect = document.querySelector('#shop_id');
-    const productSelect = document.querySelector('#product_id');
-    const productPrice = document.querySelector('#product_price');
-    const quantityInput = document.querySelector('#product_quantity');
-    const totalInput = document.querySelector('#product_total');
-    const discountInput = document.querySelector('#discount');
-    const taxInput = document.querySelector('#tax');
-    const finalTotalInput = document.querySelector('#final_total');
+// CUSTOMER AUTOFILL
+const customers = document.querySelector('#customer_id');
+const emailSpan = document.querySelector('#customer_email');
+const phoneSpan = document.querySelector('#customer_phone');
+const companySpan = document.querySelector('#customer_company');
 
-    const paymentType = document.querySelector('#payment_type');
-    const amountPaidWrapper = document.querySelector('#amount_paid_wrapper');
-    const amountPaidInput = document.querySelector('#amount_paid');
-    const balanceInput = document.querySelector('#balance');
+customers.addEventListener('change', function () {
+    const selected = customers.selectedOptions[0];
+    emailSpan.textContent = selected.dataset.email;
+    phoneSpan.textContent = selected.dataset.phone;
+    companySpan.textContent = selected.dataset.company;
+});
 
-    let products = @json($products);
+// PRODUCT ROW LOGIC
+const shopSelect = document.querySelector('#shop_id');
+const productsWrapper = document.querySelector('#products_wrapper');
+const addProductBtn = document.querySelector('#add_product_btn');
+const goodsInput = document.querySelector('#goods_json');
 
-    // CUSTOMER AUTOFILL
-    customers.addEventListener('change', function () {
-        const selected = customers.selectedOptions[0];
-        emailSpan.textContent = selected.dataset.email;
-        phoneSpan.textContent = selected.dataset.phone;
-        companySpan.textContent = selected.dataset.company;
-    });
-
-    // FILTER PRODUCT BY SHOP
-    shopSelect.addEventListener('change', function () {
-        const shopId = Number(this.value);
-        productSelect.innerHTML = '<option value="">-- Choose Product --</option>';
-
+shopSelect.addEventListener('change', function () {
+    const shopId = Number(this.value);
+    document.querySelectorAll('.product_select').forEach(select => {
+        select.innerHTML = '<option value="">-- Choose Product --</option>';
         if (shopId) {
-            productSelect.disabled = false;
-
+            select.disabled = false;
             products.filter(p => Number(p.shop_id) === shopId)
                 .forEach(p => {
                     const opt = document.createElement('option');
                     opt.value = p.id;
                     opt.dataset.price = p.price;
                     opt.textContent = p.name;
-                    productSelect.appendChild(opt);
+                    select.appendChild(opt);
                 });
-        } else {
-            productSelect.disabled = true;
-        }
+        } else select.disabled = true;
+    });
+    updateAllTotals();
+});
 
-        resetPriceTotal();
+// Add new row
+addProductBtn.addEventListener('click', () => {
+    const newRow = document.querySelector('.product_row').cloneNode(true);
+    newRow.querySelectorAll('input').forEach(i => i.value = i.classList.contains('product_quantity') ? 1 : '');
+    newRow.querySelector('.product_select').value = '';
+    productsWrapper.appendChild(newRow);
+});
+
+// Remove row
+productsWrapper.addEventListener('click', function(e) {
+    if(e.target.classList.contains('remove_product')){
+        if(productsWrapper.querySelectorAll('.product_row').length > 1) e.target.closest('.product_row').remove();
+        updateAllTotals();
+    }
+});
+
+// Update totals
+productsWrapper.addEventListener('change', updateAllTotals);
+productsWrapper.addEventListener('input', updateAllTotals);
+
+function updateAllTotals() {
+    let allTotal = 0;
+    const goodsArray = [];
+
+    productsWrapper.querySelectorAll('.product_row').forEach(row => {
+        const select = row.querySelector('.product_select');
+        const qty = Number(row.querySelector('.product_quantity').value) || 1;
+        const price = parseFloat(select.selectedOptions[0]?.dataset.price || 0);
+        const total = price * qty;
+
+        row.querySelector('.product_price').value = price.toFixed(2);
+        row.querySelector('.product_total').value = total.toFixed(2);
+
+        if(select.value) {
+            goodsArray.push({
+                product_id: select.value,
+                name: select.selectedOptions[0].textContent,
+                quantity: qty,
+                price: price,
+                total_price: total
+            });
+            allTotal += total;
+        }
     });
 
-    // PRICE + TOTAL CALC
-    productSelect.addEventListener('change', updatePriceTotal);
-    quantityInput.addEventListener('input', updatePriceTotal);
-    discountInput.addEventListener('input', updateFinalTotal);
-    taxInput.addEventListener('input', updateFinalTotal);
-    amountPaidInput.addEventListener('input', calculateBalance);
-    paymentType.addEventListener('change', toggleAmountPaid);
+    goodsInput.value = JSON.stringify(goodsArray);
 
-    function updatePriceTotal() {
-        const selected = productSelect.selectedOptions[0];
-        const price = parseFloat(selected?.dataset?.price || 0);
-        const qty = Number(quantityInput.value) || 1;
-
-        productPrice.value = price.toFixed(2);
-        totalInput.value = (price * qty).toFixed(2);
-
-        updateFinalTotal();
-    }
-
-    function updateFinalTotal() {
-        const total = Number(totalInput.value) || 0;
-        const discount = Number(discountInput.value) || 0;
-        const tax = Number(taxInput.value) || 0;
-
-        const finalTotal = total - discount + tax;
-        finalTotalInput.value = finalTotal.toFixed(2);
-
-        calculateBalance();
-    }
-
-function toggleAmountPaid() {
-    const finalTotal = Number(finalTotalInput.value) || 0;
-
-    if (paymentType.value === "part") {
-        amountPaidWrapper.classList.remove('d-none');
-        amountPaidInput.value = 0;
-    } else {
-        // FULL PAYMENT
-        amountPaidWrapper.classList.add('d-none');
-        amountPaidInput.value = finalTotal; // ✅ PAY EVERYTHING
-    }
+    const discount = Number(document.querySelector('#discount').value) || 0;
+    const tax = Number(document.querySelector('#tax').value) || 0;
+    const finalTotal = allTotal - discount + tax;
+    document.querySelector('#final_total').value = finalTotal.toFixed(2);
 
     calculateBalance();
 }
 
+// DISCOUNT + TAX
+document.querySelector('#discount').addEventListener('input', updateAllTotals);
+document.querySelector('#tax').addEventListener('input', updateAllTotals);
 
-    function calculateBalance() {
-        const finalTotal = Number(finalTotalInput.value) || 0;
-        const amountPaid = Number(amountPaidInput.value) || 0;
+// PAYMENT LOGIC
+const paymentType = document.querySelector('#payment_type');
+const amountPaidWrapper = document.querySelector('#amount_paid_wrapper');
+const amountPaidInput = document.querySelector('#amount_paid');
+const balanceInput = document.querySelector('#balance');
 
-        const balance = finalTotal - amountPaid;
-        balanceInput.value = balance.toFixed(2);
+paymentType.addEventListener('change', toggleAmountPaid);
+amountPaidInput.addEventListener('input', calculateBalance);
+
+function toggleAmountPaid() {
+    const finalTotal = Number(document.querySelector('#final_total').value) || 0;
+    if (paymentType.value === "part") {
+        amountPaidWrapper.classList.remove('d-none');
+        amountPaidInput.value = 0;
+    } else {
+        amountPaidWrapper.classList.add('d-none');
+        amountPaidInput.value = finalTotal;
     }
+    calculateBalance();
+}
 
-    function resetPriceTotal() {
-        productPrice.value = '';
-        totalInput.value = '';
-        finalTotalInput.value = '';
-        balanceInput.value = '';
-    }
+function calculateBalance() {
+    const finalTotal = Number(document.querySelector('#final_total').value) || 0;
+    const amountPaid = Number(amountPaidInput.value) || 0;
+    const balance = finalTotal - amountPaid;
+    balanceInput.value = balance.toFixed(2);
+}
 </script>
 @endsection
