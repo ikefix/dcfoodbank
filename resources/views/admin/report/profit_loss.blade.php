@@ -157,7 +157,7 @@
             </a>
         </div>
 
-    <div class="card-body p-0">
+        <div class="card-body p-0">
         <table class="table table-striped table-hover mb-0">
             <thead>
                 <tr>
@@ -171,13 +171,19 @@
             <tbody>
                 @php
                     $goodsByProfit = $sales->groupBy(fn($item) => $item->product->name)
-                        ->map(fn($items, $name) => [
+                        ->map(fn($items) => [
                             'quantity' => $items->sum('quantity'),
                             'revenue' => $items->sum(fn($i) => $i->total_price - ($i->discount_value ?? 0)),
                             'cost' => $items->sum(fn($i) => ($i->product->cost_price ?? 0) * $i->quantity),
                         ])
-                        ->map(fn($item) => array_merge($item, ['profit' => $item['revenue'] - $item['cost']]))
-                        ->filter(fn($item) => $item['profit'] > 0);
+                        ->map(fn($item) => array_merge($item, [
+                            'profit' => $item['revenue'] - $item['cost']
+                        ]));
+
+                    $totalQuantity = $goodsByProfit->sum('quantity');
+                    $totalRevenue  = $goodsByProfit->sum('revenue');
+                    $totalCost     = $goodsByProfit->sum('cost');
+                    $totalProfit   = $goodsByProfit->sum('profit');
                 @endphp
 
                 @forelse($goodsByProfit as $product => $data)
@@ -186,15 +192,34 @@
                         <td>{{ $data['quantity'] }}</td>
                         <td class="text-end">₦{{ number_format($data['revenue'], 2) }}</td>
                         <td class="text-end">₦{{ number_format($data['cost'], 2) }}</td>
-                        <td class="text-end">₦{{ number_format($data['profit'], 2) }}</td>
+                        <td class="text-end 
+                            {{ $data['profit'] >= 0 ? 'text-success' : 'text-danger' }}">
+                            ₦{{ number_format($data['profit'], 2) }}
+                        </td>
                     </tr>
                 @empty
                     <tr>
                         <td colspan="5" class="text-center text-muted">
-                            No profitable goods in this period
+                            No goods in this period
                         </td>
                     </tr>
                 @endforelse
+
+                @if($goodsByProfit->count() > 0)
+                    <tr class="fw-bold table-light">
+                        <td>Total</td>
+                        <td>{{ $totalQuantity }}</td>
+                        <td class="text-end text-success">
+                            ₦{{ number_format($totalRevenue, 2) }}
+                        </td>
+                        <td class="text-end text-danger">
+                            ₦{{ number_format($totalCost, 2) }}
+                        </td>
+                        <td class="text-end {{ $totalProfit >= 0 ? 'text-success' : 'text-danger' }}">
+                            ₦{{ number_format($totalProfit, 2) }}
+                        </td>
+                    </tr>
+                @endif
             </tbody>
         </table>
     </div>
